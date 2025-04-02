@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real-Time Weather Forecast</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+ 
+    <div class="container">
+        <h1>Real-Time Weather Forecast</h1>
+        <!-- Input for the city name instead of the select dropdown -->
+        <input type="text" id="city" placeholder="Enter city name" />
+        <button onclick="getWeather()">Get Weather</button>
+        
+        <div id="weather-info" class="weather-info"></div>
+    </div>
+ 
+    <script>
+        async function getWeather() {
+            const city = document.getElementById('city').value.trim(); // Get value from input
+            const apiKey = 'cdebe240906c559b0786c44f50ccf09f'; // Replace with your new API key
+ 
+            if (!city) {
+                alert('Please enter a city name.');
+                return;
+            }
+ 
+            const encodedCity = encodeURIComponent(city); // URL encode the city
+            const apiUrl = `https://api.openweathermap.org/data/2.5/weather?q=${encodedCity}&appid=${apiKey}&units=metric`; // Removed country code for global city search
+ 
+            try {
+                const response = await fetch(apiUrl);
+ 
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+ 
+                const data = await response.json();
+ 
+                if (data.cod === '404') {
+                    throw new Error('City not found. Please check the city name and try again.');
+                }
+ 
+                if (data.cod === 200) {
+                    const weatherDescription = data.weather[0].description;
+                    const temperature = data.main.temp;
+                    const humidity = data.main.humidity;
+                    const windSpeed = data.wind.speed;
+ 
+                    const weatherHtml = `
+                        <h3>Weather in <span class="highlight">${data.name}</span></h3>
+                        <p><span class="highlight">Condition:</span> ${weatherDescription}</p>
+                        <p><span class="highlight">Temperature:</span> ${temperature}°C</p>
+                        <p><span class="highlight">Humidity:</span> ${humidity}%</p>
+                        <p><span class="highlight">Wind Speed:</span> ${windSpeed} m/s</p>
+                    `;
+                    document.getElementById('weather-info').innerHTML = weatherHtml;
+                } else {
+                    throw new Error('Error fetching weather data');
+                }
+            } catch (error) {
+                console.error('Error:', error.message);
+                alert('Error fetching weather data: ' + error.message);
+            }
+        }
+    </script>
+ 
+</body>
+</html>
