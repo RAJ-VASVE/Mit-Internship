@@ -1,0 +1,226 @@
+Last login: Mon Mar 17 11:40:45 on ttys000
+dhananjay_survase_@Dhananjays-MacBook-Air ~ % mysql -u root -p
+
+Enter password: 
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 22
+Server version: 9.2.0 Homebrew
+
+Copyright (c) 2000, 2025, Oracle and/or its affiliates.
+
+Oracle is a registered trademark of Oracle Corporation and/or its
+affiliates. Other names may be trademarks of their respective
+owners.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+mysql> CREATE DATABASE stock_trading;
+Query OK, 1 row affected (0.03 sec)
+
+mysql> USE stock_trading;
+Database changed
+mysql> CREATE DATABASE stock_trading;
+ERROR 1007 (HY000): Can't create database 'stock_trading'; database exists
+mysql> USE stock_trading;
+Database changed
+mysql> exit
+Bye
+dhananjay_survase_@Dhananjays-MacBook-Air ~ % mysql -u root -p
+
+Enter password: 
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 23
+Server version: 9.2.0 Homebrew
+
+Copyright (c) 2000, 2025, Oracle and/or its affiliates.
+
+Oracle is a registered trademark of Oracle Corporation and/or its
+affiliates. Other names may be trademarks of their respective
+owners.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+mysql> CREATE DATABASE HighFrequencyTrading;
+Query OK, 1 row affected (0.01 sec)
+
+mysql> USE HighFrequencyTrading;
+Database changed
+mysql> 
+mysql> -- Users Table
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> CREATE TABLE Users (
+    ->     user_id INT PRIMARY KEY AUTO_INCREMENT,
+    ->     first_name VARCHAR(255) NOT NULL,
+    ->     last_name VARCHAR(255) NOT NULL,
+    ->     email VARCHAR(255) UNIQUE NOT NULL,
+    ->     account_balance DECIMAL(15,2) NOT NULL,
+    ->     registration_date DATETIME DEFAULT CURRENT_TIMESTAMP
+    -> );
+Query OK, 0 rows affected (0.03 sec)
+
+mysql> 
+mysql> -- Stocks Table
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> CREATE TABLE Stocks (
+    ->     stock_id INT PRIMARY KEY AUTO_INCREMENT,
+    ->     ticker_symbol VARCHAR(10) UNIQUE NOT NULL,
+    ->     company_name VARCHAR(255) NOT NULL,
+    ->     current_price DECIMAL(15,2) NOT NULL,
+    ->     market_cap DECIMAL(20,2) NOT NULL
+    -> );
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> 
+mysql> -- Orders Table
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> CREATE TABLE Orders (
+    ->     order_id INT PRIMARY KEY AUTO_INCREMENT,
+    ->     user_id INT,
+    ->     stock_id INT,
+    ->     order_type ENUM('buy', 'sell') NOT NULL,
+    ->     quantity INT NOT NULL,
+    ->     price_per_share DECIMAL(15,2) NOT NULL,
+    ->     order_status ENUM('pending', 'executed', 'canceled') DEFAULT 'pending',
+    ->     order_time DATETIME DEFAULT CURRENT_TIMESTAMP,
+    ->     FOREIGN KEY (user_id) REFERENCES Users(user_id),
+    ->     FOREIGN KEY (stock_id) REFERENCES Stocks(stock_id)
+    -> );
+Query OK, 0 rows affected (0.02 sec)
+
+mysql> 
+mysql> -- Transactions Table
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> CREATE TABLE Transactions (
+    ->     transaction_id INT PRIMARY KEY AUTO_INCREMENT,
+    ->     order_id INT,
+    ->     execution_price DECIMAL(15,2) NOT NULL,
+    ->     execution_time DATETIME DEFAULT CURRENT_TIMESTAMP,
+    ->     FOREIGN KEY (order_id) REFERENCES Orders(order_id)
+    -> );
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> 
+mysql> -- User Portfolio Table
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> CREATE TABLE User_Portfolio (
+    ->     portfolio_id INT PRIMARY KEY AUTO_INCREMENT,
+    ->     user_id INT,
+    ->     stock_id INT,
+    ->     quantity_owned INT NOT NULL,
+    ->     average_purchase_price DECIMAL(15,2) NOT NULL,
+    ->     FOREIGN KEY (user_id) REFERENCES Users(user_id),
+    ->     FOREIGN KEY (stock_id) REFERENCES Stocks(stock_id)
+    -> );
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> 
+mysql> -- Advanced Queries
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> -- 1. Find the top 5 most traded stocks in the last 24 hours
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> SELECT s.ticker_symbol, COUNT(o.order_id) AS trade_count 
+    -> FROM Orders o
+    -> JOIN Stocks s ON o.stock_id = s.stock_id
+    -> WHERE order_time >= NOW() - INTERVAL 1 DAY
+    -> GROUP BY s.ticker_symbol
+    -> ORDER BY trade_count DESC
+    -> LIMIT 5;
+Empty set (0.01 sec)
+
+mysql> 
+mysql> -- 2. Calculate real-time profit/loss for each user’s portfolio
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> SELECT u.user_id, u.first_name, u.last_name,
+    ->        SUM((s.current_price - up.average_purchase_price) * up.quantity_owned) AS profit_loss
+    -> FROM User_Portfolio up
+    -> JOIN Stocks s ON up.stock_id = s.stock_id
+    -> JOIN Users u ON up.user_id = u.user_id
+    -> GROUP BY u.user_id;
+Empty set (0.00 sec)
+
+mysql> 
+mysql> -- 3. Detect users making high-risk trades (buying more than 50% of account balance in one trade)
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> SELECT u.user_id, u.first_name, u.last_name, o.order_id, o.quantity * o.price_per_share AS trade_value, u.account_balance
+    -> FROM Orders o
+    -> JOIN Users u ON o.user_id = u.user_id
+    -> WHERE o.order_type = 'buy' AND (o.quantity * o.price_per_share) > (u.account_balance * 0.5);
+Empty set (0.01 sec)
+
+mysql> 
+mysql> -- 4. Identify stocks with the highest price volatility in the last 7 days
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> SELECT stock_id, ticker_symbol,
+    ->        MAX(current_price) - MIN(current_price) AS volatility
+    -> FROM Stocks
+    -> WHERE stock_id IN (
+    ->     SELECT stock_id FROM Orders WHERE order_time >= NOW() - INTERVAL 7 DAY
+    -> )
+    -> GROUP BY stock_id
+    -> ORDER BY volatility DESC
+    -> LIMIT 5;
+Empty set (0.00 sec)
+
+mysql> 
+mysql> -- 5. Find users who placed more than 100 trades in the last hour
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> SELECT user_id, COUNT(order_id) AS trade_count
+    -> FROM Orders
+    -> WHERE order_time >= NOW() - INTERVAL 1 HOUR
+    -> GROUP BY user_id
+    -> HAVING trade_count > 100;
+Empty set (0.00 sec)
+
+mysql> 
+mysql> -- 6. Calculate total transaction volume for each stock per day
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> SELECT s.ticker_symbol, DATE(t.execution_time) AS trade_date, SUM(o.quantity) AS total_volume
+    -> FROM Transactions t
+    -> JOIN Orders o ON t.order_id = o.order_id
+    -> JOIN Stocks s ON o.stock_id = s.stock_id
+    -> GROUP BY s.ticker_symbol, trade_date;
+Empty set (0.00 sec)
+
+mysql> 
+mysql> -- 7. Detect anomalies where an order was placed but never executed
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> SELECT o.order_id, o.user_id, o.stock_id, o.order_status
+    -> FROM Orders o
+    -> LEFT JOIN Transactions t ON o.order_id = t.order_id
+    -> WHERE t.transaction_id IS NULL AND o.order_status = 'pending';
+Empty set (0.00 sec)
+
+mysql> 
+mysql> -- 8. Find stocks that have dropped more than 10% in a single trading day 
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> SELECT stock_id, ticker_symbol, ((MAX(current_price) - MIN(current_price)) / MAX(current_price)) * 100 AS drop_percentage
+    -> FROM Stocks
+    -> WHERE stock_id IN (
+    ->     SELECT stock_id FROM Orders WHERE order_time >= NOW() - INTERVAL 1 DAY
+    -> )
+    -> GROUP BY stock_id
+    -> HAVING drop_percentage > 10;
+Empty set (0.00 sec)
+
+mysql> 
+mysql> -- Extreme Challenges
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> -- Implementing real-time processing, machine learning, and optimization would require additional integrations beyond SQL.
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> 

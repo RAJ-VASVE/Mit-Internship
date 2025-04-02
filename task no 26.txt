@@ -1,0 +1,283 @@
+Last login: Wed Mar 12 19:32:30 on ttys009
+dhananjay_survase_@Dhananjays-MacBook-Air ~ % brew services start mysql
+
+Service `mysql` already started, use `brew services restart mysql` to restart.
+dhananjay_survase_@Dhananjays-MacBook-Air ~ % mysql -u root -p
+
+Enter password: 
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 17
+Server version: 9.2.0 Homebrew
+
+Copyright (c) 2000, 2025, Oracle and/or its affiliates.
+
+Oracle is a registered trademark of Oracle Corporation and/or its
+affiliates. Other names may be trademarks of their respective
+owners.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+mysql> -- Creating the Database
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> CREATE DATABASE ecommerce_db;
+Query OK, 1 row affected (0.04 sec)
+
+mysql> USE ecommerce_db;
+Database changed
+mysql> 
+mysql> -- Products Table
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> CREATE TABLE Products (
+    ->     product_id INT PRIMARY KEY AUTO_INCREMENT,
+    ->     name VARCHAR(255) NOT NULL,
+    ->     category VARCHAR(255),
+    ->     price DECIMAL(10,2) NOT NULL,
+    ->     stock_quantity INT NOT NULL
+    -> );
+Query OK, 0 rows affected (0.03 sec)
+
+mysql> 
+mysql> -- Customers Table
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> CREATE TABLE Customers (
+    ->     customer_id INT PRIMARY KEY AUTO_INCREMENT,
+    ->     first_name VARCHAR(100) NOT NULL,
+    ->     last_name VARCHAR(100) NOT NULL,
+    ->     email VARCHAR(255) UNIQUE NOT NULL,
+    ->     registration_date DATE NOT NULL
+    -> );
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> 
+mysql> -- Orders Table
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> CREATE TABLE Orders (
+    ->     order_id INT PRIMARY KEY AUTO_INCREMENT,
+    ->     customer_id INT,
+    ->     order_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+    ->     status ENUM('pending', 'shipped', 'delivered', 'canceled') NOT NULL,
+    FOREIGN KEY (customer_id) REFERENCES Customers(customer_id)
+);
+
+-- Order_Items Table
+CREATE TABLE Order_Items (
+    order_item_id INT PRIMARY KEY AUTO_INCREMENT,
+    order_id INT,
+    product_id INT,
+    quantity INT NOT NULL,
+    total_price DECIMAL(10,2) NOT NULL,
+    FOREIGN KEY (order_id) REFERENCES Orders(order_id),
+    FOREIGN KEY (product_id) REFERENCES Products(product_id)
+);
+
+-- Payments Table
+CREATE TABLE Payments (
+    payment_id INT PRIMARY KEY AUTO_INCREMENT,
+    order_id INT,
+    payment_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+    amount DECIMAL(10,2) NOT NULL,
+    payment_method ENUM('credit_card', 'paypal', 'bank_transfer') NOT NULL,
+    FOREIGN KEY (order_id) REFERENCES Orders(order_id)
+);
+
+-- Advanced Queries
+
+-- 1. Find the top 5 best-selling products
+SELECT p.name, SUM(oi.quantity) AS total_sold
+FROM Order_Items oi
+JOIN Products p ON oi.product_id = p.product_id
+GROUP BY p.pr    status ENUM('pending', 'shipped', 'delivered', 'canceled') NOT NULL,
+    ->     FOREIGN KEY (customer_id) REFERENCES Customers(customer_id)
+    -> );
+Query OK, 0 rows affected (0.02 sec)
+
+mysql> 
+mysql> -- Order_Items Table
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> CREATE TABLE Order_Items (
+    ->     order_item_id INT PRIMARY KEY AUTO_INCREMENT,
+    ->     order_id INT,
+    ->     product_id INT,
+    ->     quantity INT NOT NULL,
+    ->     total_price DECIMAL(10,2) NOT NULL,
+    ->     FOREIGN KEY (order_id) REFERENCES Orders(order_id),
+    ->     FOREIGN KEY (product_id) REFERENCES Products(product_id)
+    -> );
+Query OK, 0 rows affected (0.02 sec)
+
+mysql> 
+mysql> -- Payments Table
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> CREATE TABLE Payments (
+    ->     payment_id INT PRIMARY KEY AUTO_INCREMENT,
+    ->     order_id INT,
+    ->     payment_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+    ->     amount DECIMAL(10,2) NOT NULL,
+    ->     payment_method ENUM('credit_card', 'paypal', 'bank_transfer') NOT NULL,
+    ->     FOREIGN KEY (order_id) REFERENCES Orders(order_id)
+    -> );
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> 
+mysql> -- Advanced Queries
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> 
+mysql> -- 1. Find the top 5 best-selling products
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> SELECT p.name, SUM(oi.quantity) AS total_sold
+    -> FROM Order_Items oi
+    -> JOIN Products p ON oi.product_id = p.product_id
+    -> GROUP BY p.product_id
+    -> ORDER BY total_sold DESC
+    -> LIMIT 5;
+Empty set (0.01 sec)
+
+mysql> 
+mysql> -- 2. Calculate total revenue for the last 6 months
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> SELECT SUM(amount) AS total_revenue
+    -> FROM Payments
+    -> WHERE payment_date >= DATE_SUB(CURRENT_DATE, INTERVAL 6 MONTH);
++---------------+
+| total_revenue |
++---------------+
+|          NULL |
++---------------+
+1 row in set (0.00 sec)
+
+mysql> 
+mysql> -- 3. Find customers who placed more than 10 orders
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> SELECT c.customer_id, c.first_name, c.last_name, COUNT(o.order_id) AS order_count
+    -> FROM Customers c
+    -> JOIN Orders o ON c.customer_id = o.customer_id
+    -> GROUP BY c.customer_id
+    -> HAVING order_count > 10;
+Empty set (0.00 sec)
+
+mysql> 
+mysql> -- 4. List products that have never been purchased
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> SELECT * FROM Products
+    -> WHERE product_id NOT IN (SELECT DISTINCT product_id FROM Order_Items);
+Empty set (0.00 sec)
+
+mysql> 
+mysql> -- 5. Calculate the average order value per customer
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> SELECT customer_id, AVG(amount) AS avg_order_value
+    -> FROM Payments p
+    -> JOIN Orders o ON p.order_id = o.order_id
+    -> GROUP BY customer_id;
+Empty set (0.00 sec)
+
+mysql> 
+mysql> -- 6. Find the month with the highest sales in the last 2 years
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> SELECT DATE_FORMAT(payment_date, '%Y-%m') AS month, SUM(amount) AS total_sales
+    -> FROM Payments
+    -> WHERE payment_date >= DATE_SUB(CURRENT_DATE, INTERVAL 2 YEAR)
+    -> GROUP BY month
+    -> ORDER BY total_sales DESC
+    -> LIMIT 1;
+Empty set (0.00 sec)
+
+mysql> 
+mysql> -- 7. Identify customers who haven't ordered anything in the last 12 months
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> SELECT * FROM Customers
+    -> WHERE customer_id NOT IN (
+    ->     SELECT DISTINCT customer_id FROM Orders WHERE order_date >= DATE_SUB(CURRENT_DATE, INTERVAL 12 MONTH)
+    -> );
+Empty set (0.00 sec)
+
+mysql> 
+mysql> -- 8. Find the most popular payment method
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> SELECT payment_method, COUNT(*) AS usage_count
+    -> FROM Payments
+    -> GROUP BY payment_method
+    -> ORDER BY usage_count DESC
+    -> LIMIT 1;
+Empty set (0.00 sec)
+
+mysql> 
+mysql> -- Stored Procedure: Update Stock Levels
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> DELIMITER //
+mysql> CREATE PROCEDURE UpdateStock(IN orderID INT)
+    -> BEGIN
+    ->     UPDATE Products p
+    ->     JOIN Order_Items oi ON p.product_id = oi.product_id
+    ->     SET p.stock_quantity = p.stock_quantity - oi.quantity
+    ->     WHERE oi.order_id = orderID;
+    -> END //
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> DELIMITER ;
+mysql> 
+mysql> -- Trigger: Mark Order as "Canceled" if Payment Fails
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> DELIMITER //
+mysql> CREATE TRIGGER CancelOrderOnFailedPayment
+    -> AFTER INSERT ON Payments
+    -> FOR EACH ROW
+    -> BEGIN
+    ->     IF NEW.amount = 0 THEN
+    ->         UPDATE Orders SET status = 'canceled' WHERE order_id = NEW.order_id;
+    ->     END IF;
+    -> END //
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> DELIMITER ;
+mysql> 
+mysql> -- View: Customer Purchase History
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> CREATE VIEW CustomerPurchaseHistory AS
+    -> SELECT c.customer_id, c.first_name, c.last_name, o.order_id, o.order_date, oi.product_id, p.name, oi.quantity, oi.total_price, pay.amount, pay.payment_date
+    -> FROM Customers c
+    -> JOIN Orders o ON c.customer_id = o.customer_id
+    -> JOIN Order_Items oi ON o.order_id = oi.order_id
+    -> JOIN Products p ON oi.product_id = p.product_id
+    -> JOIN Payments pay ON o.order_id = pay.order_id;
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> 
+mysql> -- Index Strategy
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> CREATE INDEX idx_order_date ON Orders(order_date);
+Query OK, 0 rows affected (0.02 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql> CREATE INDEX idx_payment_date ON Payments(payment_date);
+Query OK, 0 rows affected (0.01 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql> CREATE INDEX idx_customer_email ON Customers(email);
+Query OK, 0 rows affected (0.01 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql> CREATE INDEX idx_product_category ON Products(category);
+Query OK, 0 rows affected (0.01 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql> 

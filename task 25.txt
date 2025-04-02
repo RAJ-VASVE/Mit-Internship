@@ -1,0 +1,529 @@
+Last login: Tue Mar  4 11:18:35 on ttys000
+dhananjay_survase_@Dhananjays-MacBook-Air ~ % mysql -u root -p
+
+Enter password: 
+ERROR 1045 (28000): Access denied for user 'root'@'localhost' (using password: NO)
+dhananjay_survase_@Dhananjays-MacBook-Air ~ % mysql -u root -p
+
+Enter password: 
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 15
+Server version: 9.2.0 Homebrew
+
+Copyright (c) 2000, 2025, Oracle and/or its affiliates.
+
+Oracle is a registered trademark of Oracle Corporation and/or its
+affiliates. Other names may be trademarks of their respective
+owners.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+mysql> CREATE DATABASE LibraryManagement;
+Query OK, 1 row affected (0.03 sec)
+
+mysql> 
+mysql> USE LibraryManagement;
+Database changed
+mysql> CREATE TABLE Books (
+    ->     book_id INT AUTO_INCREMENT PRIMARY KEY,
+    ->     title VARCHAR(255) NOT NULL,
+    ->     author VARCHAR(255),
+    ->     published_year INT
+    -> );
+Query OK, 0 rows affected (0.02 sec)
+
+mysql> 
+mysql> CREATE TABLE Members (
+    ->     member_id INT AUTO_INCREMENT PRIMARY KEY,
+    ->     first_name VARCHAR(100),
+    ->     last_name VARCHAR(100),
+    ->     email VARCHAR(255) UNIQUE
+    -> );
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> 
+mysql> CREATE TABLE Loans (
+    ->     loan_id INT AUTO_INCREMENT PRIMARY KEY,
+    ->     book_id INT,
+    ->     member_id INT,
+    ->     librarian_id INT,
+    ->     loan_date DATE,
+    ->     due_date DATE,
+    ->     return_date DATE DEFAULT NULL,
+    ->     FOREIGN KEY (book_id) REFERENCES Books(book_id),
+    ->     FOREIGN KEY (member_id) REFERENCES Members(member_id)
+    -> );
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> 
+mysql> CREATE TABLE Reservations (
+    ->     reservation_id INT AUTO_INCREMENT PRIMARY KEY,
+    ->     book_id INT,
+    ->     member_id INT,
+    ->     reservation_date DATE,
+    ->     status ENUM('pending', 'fulfilled', 'canceled'),
+    ->     FOREIGN KEY (book_id) REFERENCES Books(book_id),
+    ->     FOREIGN KEY (member_id) REFERENCES Members(member_id)
+    -> );
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> 
+mysql> CREATE TABLE Fines (
+    ->     fine_id INT AUTO_INCREMENT PRIMARY KEY,
+    ->     member_id INT,
+    ->     loan_id INT,
+    ->     fine_amount DECIMAL(10,2),
+    ->     paid_status ENUM('unpaid', 'paid'),
+    ->     FOREIGN KEY (member_id) REFERENCES Members(member_id),
+    ->     FOREIGN KEY (loan_id) REFERENCES Loans(loan_id)
+    -> );
+Query OK, 0 rows affected (0.02 sec)
+
+mysql> 
+mysql> CREATE TABLE Librarians (
+    ->     librarian_id INT AUTO_INCREMENT PRIMARY KEY,
+    ->     first_name VARCHAR(100),
+    ->     last_name VARCHAR(100),
+    ->     email VARCHAR(255) UNIQUE,
+    ->     hire_date DATE
+    -> );
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> INSERT INTO Books (title, author, published_year) VALUES 
+    -> ('The Catcher in the Rye', 'J.D. Salinger', 1951),
+    -> ('To Kill a Mockingbird', 'Harper Lee', 1960),
+    -> ('1984', 'George Orwell', 1949);
+Query OK, 3 rows affected (0.01 sec)
+Records: 3  Duplicates: 0  Warnings: 0
+
+mysql> 
+mysql> INSERT INTO Members (first_name, last_name, email) VALUES 
+    -> ('John', 'Doe', 'john.doe@example.com'),
+    -> ('Jane', 'Smith', 'jane.smith@example.com');
+Query OK, 2 rows affected (0.00 sec)
+Records: 2  Duplicates: 0  Warnings: 0
+
+mysql> 
+mysql> INSERT INTO Librarians (first_name, last_name, email, hire_date) VALUES 
+    -> ('Alice', 'Brown', 'alice.brown@example.com', '2020-01-15'),
+    -> ('Bob', 'Johnson', 'bob.johnson@example.com', '2019-07-22');
+Query OK, 2 rows affected (0.01 sec)
+Records: 2  Duplicates: 0  Warnings: 0
+
+mysql> 
+mysql> INSERT INTO Loans (book_id, member_id, librarian_id, loan_date, due_date) VALUES 
+    -> (1, 1, 1, '2024-02-15', '2024-03-01'),
+    -> (2, 2, 2, '2024-02-20', '2024-03-05');
+Query OK, 2 rows affected (0.00 sec)
+Records: 2  Duplicates: 0  Warnings: 0
+
+mysql> 
+mysql> SELECT * FROM Books;
++---------+------------------------+---------------+----------------+
+| book_id | title                  | author        | published_year |
++---------+------------------------+---------------+----------------+
+|       1 | The Catcher in the Rye | J.D. Salinger |           1951 |
+|       2 | To Kill a Mockingbird  | Harper Lee    |           1960 |
+|       3 | 1984                   | George Orwell |           1949 |
++---------+------------------------+---------------+----------------+
+3 rows in set (0.00 sec)
+
+mysql> SELECT * FROM Members;
++-----------+------------+-----------+------------------------+
+| member_id | first_name | last_name | email                  |
++-----------+------------+-----------+------------------------+
+|         1 | John       | Doe       | john.doe@example.com   |
+|         2 | Jane       | Smith     | jane.smith@example.com |
++-----------+------------+-----------+------------------------+
+2 rows in set (0.00 sec)
+
+mysql> SELECT * FROM Loans;
++---------+---------+-----------+--------------+------------+------------+-------------+
+| loan_id | book_id | member_id | librarian_id | loan_date  | due_date   | return_date |
++---------+---------+-----------+--------------+------------+------------+-------------+
+|       1 |       1 |         1 |            1 | 2024-02-15 | 2024-03-01 | NULL        |
+|       2 |       2 |         2 |            2 | 2024-02-20 | 2024-03-05 | NULL        |
++---------+---------+-----------+--------------+------------+------------+-------------+
+2 rows in set (0.00 sec)
+
+mysql> SELECT m.member_id, m.first_name, m.last_name, COUNT(l.loan_id) AS overdue_count
+    -> FROM Loans l
+    -> JOIN Members m ON l.member_id = m.member_id
+    -> WHERE l.due_date < CURDATE() AND l.return_date IS NULL
+    -> GROUP BY m.member_id
+    -> ORDER BY overdue_count DESC
+    -> LIMIT 3;
++-----------+------------+-----------+---------------+
+| member_id | first_name | last_name | overdue_count |
++-----------+------------+-----------+---------------+
+|         1 | John       | Doe       |             1 |
+|         2 | Jane       | Smith     |             1 |
++-----------+------------+-----------+---------------+
+2 rows in set (0.01 sec)
+
+mysql> SELECT member_id, SUM(fine_amount) AS total_fine
+    -> FROM Fines
+    -> WHERE member_id = 1 AND paid_status = 'unpaid';
++-----------+------------+
+| member_id | total_fine |
++-----------+------------+
+|      NULL |       NULL |
++-----------+------------+
+1 row in set (0.01 sec)
+
+mysql> SELECT member_id, SUM(fine_amount) AS total_fine
+    -> FROM Fines
+    -> WHERE member_id = 1 AND paid_status = 'unpaid';
++-----------+------------+
+| member_id | total_fine |
++-----------+------------+
+|      NULL |       NULL |
++-----------+------------+
+1 row in set (0.00 sec)
+
+mysql> SELECT b.book_id, b.title
+    -> FROM Books b
+    -> LEFT JOIN Loans l ON b.book_id = l.book_id
+    -> WHERE l.loan_id IS NULL;
++---------+-------+
+| book_id | title |
++---------+-------+
+|       3 | 1984  |
++---------+-------+
+1 row in set (0.00 sec)
+
+mysql> SELECT * FROM Reservations
+    -> WHERE status = 'pending' 
+    -> AND DATEDIFF(CURDATE(), reservation_date) > 10;
+Empty set (0.01 sec)
+
+mysql> SELECT SUM(fine_amount) AS total_fines_collected
+    -> FROM Fines
+    -> WHERE paid_status = 'paid' 
+    -> AND fine_id IN (
+    ->     SELECT fine_id FROM Fines 
+    ->     WHERE DATE_SUB(CURDATE(), INTERVAL 6 MONTH) <= CURDATE()
+    -> );
++-----------------------+
+| total_fines_collected |
++-----------------------+
+|                  NULL |
++-----------------------+
+1 row in set (0.00 sec)
+
+mysql> SELECT m.member_id, m.first_name, m.last_name, COUNT(l.loan_id) AS books_borrowed
+    -> FROM Loans l
+    -> JOIN Members m ON l.member_id = m.member_id
+    -> WHERE l.loan_date >= DATE_SUB(CURDATE(), INTERVAL 1 YEAR)
+    -> GROUP BY m.member_id
+    -> HAVING COUNT(l.loan_id) > 10;
+Empty set (0.00 sec)
+
+mysql> SELECT l.librarian_id, l.first_name, l.last_name, COUNT(lo.loan_id) AS processed_loans
+    -> FROM Loans lo
+    -> JOIN Librarians l ON lo.librarian_id = l.librarian_id
+    -> GROUP BY l.librarian_id
+    -> ORDER BY processed_loans DESC
+    -> LIMIT 3;
++--------------+------------+-----------+-----------------+
+| librarian_id | first_name | last_name | processed_loans |
++--------------+------------+-----------+-----------------+
+|            1 | Alice      | Brown     |               1 |
+|            2 | Bob        | Johnson   |               1 |
++--------------+------------+-----------+-----------------+
+2 rows in set (0.01 sec)
+
+mysql> SELECT r.book_id, b.title, COUNT(r.reservation_id) AS reservation_count
+    -> FROM Reservations r
+    -> JOIN Books b ON r.book_id = b.book_id
+    -> LEFT JOIN Loans l ON r.book_id = l.book_id
+    -> WHERE l.loan_id IS NULL
+    -> GROUP BY r.book_id
+    -> ORDER BY reservation_count DESC;
+Empty set (0.00 sec)
+
+mysql> DELIMITER $$
+mysql> 
+mysql> CREATE TRIGGER add_fine_after_due
+    -> AFTER UPDATE ON Loans
+    -> FOR EACH ROW
+    -> BEGIN
+    ->     IF NEW.return_date IS NULL AND NEW.due_date < CURDATE() THEN
+    ->         INSERT INTO Fines (member_id, loan_id, fine_amount, paid_status)
+    ->         VALUES (NEW.member_id, NEW.loan_id, 50.00, 'unpaid');
+    ->     END IF;
+    -> END $$
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> 
+mysql> DELIMITER ;
+mysql> CREATE VIEW MemberBorrowingHistory AS
+    -> SELECT m.member_id, m.first_name, m.last_name, 
+    ->        b.title, l.loan_date, l.due_date, l.return_date
+    -> FROM Loans l
+    -> JOIN Members m ON l.member_id = m.member_id
+    -> JOIN Books b ON l.book_id = b.book_id;
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> DELIMITER $$
+mysql> 
+mysql> CREATE PROCEDURE ApplyOverdueFines()
+    -> BEGIN
+    ->     INSERT INTO Fines (member_id, loan_id, fine_amount, paid_status)
+    ->     SELECT l.member_id, l.loan_id, 50.00, 'unpaid'
+    ->     FROM Loans l
+    ->     WHERE l.due_date < CURDATE() AND l.return_date IS NULL
+    ->     AND l.loan_id NOT IN (SELECT loan_id FROM Fines);
+    -> END $$
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> 
+mysql> DELIMITER ;
+mysql> ELECT m.member_id, m.first_name, m.last_name, COUNT(l.loan_id) AS overdue_books
+    -> FROM Loans l
+    -> JOIN Members m ON l.member_id = m.member_id
+    -> WHERE l.due_date < CURDATE() AND l.return_date IS NULL
+    -> GROUP BY m.member_id
+    -> ORDER BY overdue_books DESC
+    -> LIMIT 3;
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'ELECT m.member_id, m.first_name, m.last_name, COUNT(l.loan_id) AS overdue_books
+' at line 1
+mysql> SELECT member_id, SUM(fine_amount) AS total_fine
+    -> FROM Fines
+    -> WHERE member_id = 1 AND paid_status = 'unpaid';
++-----------+------------+
+| member_id | total_fine |
++-----------+------------+
+|      NULL |       NULL |
++-----------+------------+
+1 row in set (0.00 sec)
+
+mysql> SELECT b.book_id, b.title
+    -> FROM Books b
+    -> LEFT JOIN Loans l ON b.book_id = l.book_id
+    -> WHERE l.loan_id IS NULL;
++---------+-------+
+| book_id | title |
++---------+-------+
+|       3 | 1984  |
++---------+-------+
+1 row in set (0.00 sec)
+
+mysql> SELECT * FROM Reservations
+    -> WHERE status = 'pending' 
+    -> AND DATEDIFF(CURDATE(), reservation_date) > 10;
+Empty set (0.00 sec)
+
+mysql> SELECT SUM(fine_amount) AS total_fines_collected
+    -> FROM Fines
+    -> WHERE paid_status = 'paid' 
+    -> AND fine_id IN (
+    ->     SELECT fine_id FROM Fines 
+    ->     WHERE fine_amount > 0 AND DATE_SUB(CURDATE(), INTERVAL 6 MONTH) <= CURDATE()
+    -> );
++-----------------------+
+| total_fines_collected |
++-----------------------+
+|                  NULL |
++-----------------------+
+1 row in set (0.00 sec)
+
+mysql> SELECT m.member_id, m.first_name, m.last_name, COUNT(l.loan_id) AS books_borrowed
+    -> FROM Loans l
+    -> JOIN Members m ON l.member_id = m.member_id
+    -> WHERE l.loan_date >= DATE_SUB(CURDATE(), INTERVAL 1 YEAR)
+    -> GROUP BY m.member_id
+    -> HAVING COUNT(l.loan_id) > 10;
+Empty set (0.00 sec)
+
+mysql> SELECT l.librarian_id, l.first_name, l.last_name, COUNT(lo.loan_id) AS processed_loans
+    -> FROM Loans lo
+    -> JOIN Librarians l ON lo.librarian_id = l.librarian_id
+    -> GROUP BY l.librarian_id
+    -> ORDER BY processed_loans DESC
+    -> LIMIT 3;
++--------------+------------+-----------+-----------------+
+| librarian_id | first_name | last_name | processed_loans |
++--------------+------------+-----------+-----------------+
+|            1 | Alice      | Brown     |               1 |
+|            2 | Bob        | Johnson   |               1 |
++--------------+------------+-----------+-----------------+
+2 rows in set (0.01 sec)
+
+mysql> SELECT r.book_id, b.title, COUNT(r.reservation_id) AS reservation_count
+    -> FROM Reservations r
+    -> JOIN Books b ON r.book_id = b.book_id
+    -> LEFT JOIN Loans l ON r.book_id = l.book_id
+    -> WHERE l.loan_id IS NULL
+    -> GROUP BY r.book_id
+    -> ORDER BY reservation_count DESC;
+Empty set (0.00 sec)
+
+mysql> SELECT m.member_id, m.first_name, m.last_name, COUNT(l.loan_id) AS overdue_books
+    -> FROM Loans l
+    -> JOIN Members m ON l.member_id = m.member_id
+    -> WHERE l.due_date < CURDATE() AND l.return_date IS NULL
+    -> GROUP BY m.member_id
+    -> ORDER BY overdue_books DESC
+    -> LIMIT 3;
++-----------+------------+-----------+---------------+
+| member_id | first_name | last_name | overdue_books |
++-----------+------------+-----------+---------------+
+|         1 | John       | Doe       |             1 |
+|         2 | Jane       | Smith     |             1 |
++-----------+------------+-----------+---------------+
+2 rows in set (0.00 sec)
+
+mysql> DELIMITER //
+mysql> 
+mysql> CREATE TRIGGER apply_fine_on_return
+    -> BEFORE UPDATE ON BorrowedBooks
+    -> FOR EACH ROW
+    -> BEGIN
+    ->     DECLARE overdue_days INT;
+    ->     DECLARE fine_amount DECIMAL(10,2);
+    -> 
+    ->     IF NEW.return_date IS NOT NULL AND NEW.return_date > NEW.due_date THEN
+    ->         SET overdue_days = DATEDIFF(NEW.return_date, NEW.due_date);
+    ->         SET fine_amount = overdue_days * 10; -- Assuming a fine of \U+20B910 per day
+    -> 
+    ->         INSERT INTO Fines (member_id, book_id, fine_amount, fine_date)
+    ->         VALUES (NEW.member_id, NEW.book_id, fine_amount, NOW());
+    ->     END IF;
+    -> END;
+    -> 
+    -> //
+ERROR 1146 (42S02): Table 'librarymanagement.borrowedbooks' doesn't exist
+mysql> DELIMITER ;
+mysql> CREATE VIEW MemberBorrowingHistory AS
+    -> SELECT 
+    ->     M.member_id, 
+    ->     M.name, 
+    ->     B.book_id, 
+    ->     B.title, 
+    ->     BB.issue_date, 
+    ->     BB.due_date, 
+    ->     BB.return_date, 
+    ->     F.fine_amount
+    -> FROM Members M
+    -> JOIN BorrowedBooks BB ON M.member_id = BB.member_id
+    -> JOIN Books B ON BB.book_id = B.book_id
+    -> LEFT JOIN Fines F ON M.member_id = F.member_id AND B.book_id = F.book_id; 
+ERROR 1146 (42S02): Table 'librarymanagement.borrowedbooks' doesn't exist
+mysql> DELIMITER //
+mysql> 
+mysql> CREATE PROCEDURE MarkOverdueBooksAndApplyFines()
+    -> BEGIN
+    ->     DECLARE done INT DEFAULT FALSE;
+    ->     DECLARE m_id INT;
+    ->     DECLARE b_id INT;
+    ->     DECLARE overdue_days INT;
+    ->     DECLARE fine_amount DECIMAL(10,2);
+    ->     
+    ->     -- Cursor to fetch overdue books
+    ->     DECLARE overdue_cursor CURSOR FOR 
+    ->     SELECT member_id, book_id, DATEDIFF(NOW(), due_date) 
+    ->     FROM BorrowedBooks 
+    ->     WHERE return_date IS NULL AND due_date < NOW();
+    -> 
+    ->     -- Handler to exit the loop
+    ->     DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
+    -> 
+    ->     OPEN overdue_cursor;
+    -> 
+    ->     overdue_loop: LOOP
+    ->         FETCH overdue_cursor INTO m_id, b_id, overdue_days;
+    ->         IF done THEN 
+    ->             LEAVE overdue_loop;
+    ->         END IF;
+    -> 
+    ->         -- Calculate fine
+    ->         SET fine_amount = overdue_days * 10; -- \U+20B910 per day
+    -> 
+    ->         -- Insert fine if not already recorded
+    ->         INSERT INTO Fines (member_id, book_id, fine_amount, fine_date)
+    ->         VALUES (m_id, b_id, fine_amount, NOW())
+    ->         ON DUPLICATE KEY UPDATE fine_amount = fine_amount + overdue_days * 10;
+    ->     END LOOP;
+    -> 
+    ->     CLOSE overdue_cursor;
+    -> END;
+    -> 
+    -> //
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> DELIMITER ;
+mysql> DELIMITER //
+mysql> 
+mysql> CREATE PROCEDURE MarkOverdueBooksAndApplyFines()
+    -> BEGIN
+    ->     DECLARE done INT DEFAULT FALSE;
+    ->     DECLARE m_id INT;
+    ->     DECLARE b_id INT;
+    ->     DECLARE overdue_days INT;
+    ->     DECLARE fine_amount DECIMAL(10,2);
+    ->     
+    ->     -- Cursor to fetch overdue books
+    ->     DECLARE overdue_cursor CURSOR FOR 
+    ->     SELECT member_id, book_id, DATEDIFF(NOW(), due_date) 
+    ->     FROM BorrowedBooks 
+    ->     WHERE return_date IS NULL AND due_date < NOW();
+    -> 
+    ->     -- Handler to exit the loop
+    ->     DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
+    -> 
+    ->     OPEN overdue_cursor;
+    -> 
+    ->     overdue_loop: LOOP
+    ->         FETCH overdue_cursor INTO m_id, b_id, overdue_days;
+    ->         IF done THEN 
+    ->             LEAVE overdue_loop;
+    ->         END IF;
+    -> 
+    ->         -- Calculate fine
+    ->         SET fine_amount = overdue_days * 10; -- \U+20B910 per day
+    -> 
+    ->         -- Insert fine if not already recorded
+    ->         INSERT INTO Fines (member_id, book_id, fine_amount, fine_date)
+    ->         VALUES (m_id, b_id, fine_amount, NOW())
+    ->         ON DUPLICATE KEY UPDATE fine_amount = fine_amount + overdue_days * 10;
+    ->     END LOOP;
+    -> 
+    ->     CLOSE overdue_cursor;
+    -> END;
+    -> 
+    -> //
+ERROR 1304 (42000): PROCEDURE MarkOverdueBooksAndApplyFines already exists
+mysql> DELIMITER ;
+mysql> SELECT m.member_id, m.first_name, m.last_name, COUNT(l.loan_id) AS overdue_books
+    -> FROM Loans l
+    -> JOIN Members m ON l.member_id = m.member_id
+    -> WHERE l.due_date < CURDATE() AND l.return_date IS NULL
+    -> GROUP BY m.member_id
+    -> ORDER BY overdue_books DESC
+    -> LIMIT 3;
++-----------+------------+-----------+---------------+
+| member_id | first_name | last_name | overdue_books |
++-----------+------------+-----------+---------------+
+|         1 | John       | Doe       |             1 |
+|         2 | Jane       | Smith     |             1 |
++-----------+------------+-----------+---------------+
+2 rows in set (0.00 sec)
+
+mysql> 
+mysql> SELECT m.member_id, m.first_name, m.last_name, COUNT(l.loan_id) AS overdue_books
+    -> FROM Loans l
+    -> JOIN Members m ON l.member_id = m.member_id
+    -> WHERE l.due_date < CURDATE() AND l.return_date IS NULL
+    -> GROUP BY m.member_id
+    -> ORDER BY overdue_books DESC
+    -> LIMIT 3;
++-----------+------------+-----------+---------------+
+| member_id | first_name | last_name | overdue_books |
++-----------+------------+-----------+---------------+
+|         1 | John       | Doe       |             1 |
+|         2 | Jane       | Smith     |             1 |
++-----------+------------+-----------+---------------+
+2 rows in set (0.01 sec)
+
+mysql> 
