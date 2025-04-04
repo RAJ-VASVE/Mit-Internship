@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Coming Soon</title>
+  <style>
+    /* General Reset */
+    body, html {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Arial', sans-serif;
+    }
+    body {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      height: 100vh;  
+      background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+      background-size: 400% 400%;
+      animation: gradientBG 10s ease infinite;
+      color: #fff;
+    }
+
+    /* Animation for gradient background */
+    @keyframes gradientBG {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    /* Navbar */
+    nav {
+      background: rgba(0, 0, 0, 0.8);
+      padding: 15px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: #fff;
+      position: fixed;
+      width: 100%;
+      z-index: 10;
+    }
+    nav .logo {
+      font-size: 1.5em;
+      font-weight: bold;
+    }
+    nav .menu {
+      display: flex;
+      gap: 20px;
+    }
+    nav .menu a {
+      color: #fff;
+      text-decoration: none;
+      font-size: 1em;
+      transition: color 0.3s ease;
+    }
+    nav .menu a:hover {
+      color: #f39c12;
+    }
+
+    .container {
+      text-align: center;
+      max-width: 600px;
+      margin: auto;
+      padding: 30px;
+      background: rgba(0, 0, 0, 0.6);
+      border-radius: 15px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+      margin-top: 100px; /* Added margin for fixed navbar */
+    }
+
+    .logo img {
+      max-width: 150px;
+      border-radius: 50%;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+    }
+
+    h1 {
+      font-size: 2.8em;
+      margin-bottom: 10px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+
+    p {
+      font-size: 1.2em;
+      margin-bottom: 30px;
+    }
+
+    .timer {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+
+    .time-box {
+      background: rgba(255, 255, 255, 0.2);
+      padding: 15px 25px;
+      border-radius: 10px;
+      text-align: center;
+      flex: 1;
+      min-width: 70px;
+    }
+
+    .time-box span {
+      display: block;
+      font-size: 2em;
+      font-weight: bold;
+    }
+
+    .time-box label {
+      font-size: 0.9em;
+      opacity: 0.8;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .subscribe {
+      margin-top: 20px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .subscribe input[type="email"] {
+      padding: 15px;
+      width: 60%;
+      border: none;
+      border-radius: 5px 0 0 5px;
+      outline: none;
+      font-size: 1em;
+    }
+
+    .subscribe button {
+      padding: 15px;
+      border: none;
+      background: #f39c12;
+      color: #fff;
+      font-size: 1em;
+      border-radius: 0 5px 5px 0;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    .subscribe button:hover {
+      background: #d35400;
+    }
+
+    footer {
+      background: rgba(0, 0, 0, 0.7);
+      padding: 20px;
+      text-align: center;
+    }
+
+    .social-icons {
+      margin-top: 10px;
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+    }
+
+    .social-icons a {
+      color: #fff;
+      font-size: 1.5em;
+      display: inline-block;
+      padding: 10px;
+      border-radius: 50%;
+      background: #333;
+      transition: background 0.3s ease, transform 0.3s;
+      text-decoration: none;
+    }
+
+    .social-icons a:hover {
+      background: #f39c12;
+      transform: scale(1.1);
+    }
+
+    footer p {
+      margin-top: 15px;
+      color: #ccc;
+      font-size: 0.9em;
+    }
+
+    @media (max-width: 768px) {
+      h1 {
+        font-size: 2.2em;
+      }
+
+      .timer {
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .time-box {
+        min-width: 90px;
+      }
+
+      .subscribe input[type="email"] {
+        width: 50%;
+      }
+
+      .social-icons a {
+        font-size: 1.2em;
+      }
+
+      nav .menu {
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      h1 {
+        font-size: 1.8em;
+      }
+
+      .time-box {
+        padding: 10px 15px;
+      }
+
+      .subscribe input[type="email"] {
+        width: 70%;
+      }
+
+      .social-icons a {
+        font-size: 1em;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <div class="logo">My Website</div>
+    <div class="menu">
+      <a href="index.html">Home</a>
+      <a href="about.html">About Us</a>
+      <a href="products.html">Products</a>
+      <a href="contact.html">Contact</a>
+    </div>
+  </nav>
+
+  <div class="container">
+    <div class="logo">
+      <img src="C:\Users\asus\Downloads\softwarecompany.webp" alt="Logo" />
+    </div>
+    <h1>We're Coming Soon!</h1>
+    <p>Stay tuned! We're working hard to bring you something amazing.</p>
+    <div class="timer">
+      <div class="time-box">
+        <span id="days">00</span>
+        <label>Days</label>
+      </div>
+      <div class="time-box">
+        <span id="hours">00</span>
+        <label>Hours</label>
+      </div>
+      <div class="time-box">
+        <span id="minutes">00</span>
+        <label>Minutes</label>
+      </div>
+      <div class="time-box">
+        <span id="seconds">00</span>  
+        <label>Seconds</label>  
+      </div>
+    </div>
+    <div class="subscribe">
+      <input type="email" placeholder="Enter your email" />
+      <button>subscribe</button>
+    </div>
+  </div>
+
+  <footer>
+    <div class="social-icons">
+      <a href="https://facebook.com" target="_blank" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
+      <a href="https://twitter.com" target="_blank" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+      <a href="https://instagram.com" target="_blank" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+    </div>
+    <p>&copy; 2025 Your Company. All rights reserved.</p>
+  </footer>
+
+  <script>
+    // Countdown Timer Logic
+    const targetDate = new Date('2025-12-31T23:59:59').getTime();
+    const timerElements = {
+      days: document.getElementById('days'),
+      hours: document.getElementById('hours'),
+      minutes: document.getElementById('minutes'),
+      seconds: document.getElementById('seconds')
+    };
+    function updateTimer() {
+      const now = new Date().getTime();
+      const timeLeft = targetDate - now;
+      if (timeLeft < 0) {
+        document.querySelector('.timer').innerHTML = '<p>We\'ve launched!</p>';
+        clearInterval(timerInterval);
+        return;
+      }
+      timerElements.days.textContent = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+      timerElements.hours.textContent = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      timerElements.minutes.textContent = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+      timerElements.seconds.textContent = Math.floor((timeLeft % (1000 * 60)) / 1000);
+    }
+    const timerInterval = setInterval(updateTimer, 1000);
+    updateTimer(); // Initialize immediately
+  </script>
+  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+</body>
+</html>

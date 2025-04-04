@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>About Us - Softwany</title>
+  <style>
+    /* General Reset */
+    body, html {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+    }
+    body {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #ff9a9e, #fad0c4);
+      color: #333;
+    }
+
+    /* Navbar */
+    nav {
+      background: rgba(0, 0, 0, 0.8);
+      padding: 15px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: #fff;
+      position: fixed;
+      width: 100%;
+      z-index: 10;
+    }
+    nav .logo {
+      font-size: 1.5em;
+      font-weight: bold;
+    }
+    nav .menu a {
+      color: #fff;
+      text-decoration: none;
+      margin: 0 10px;
+      font-size: 1em;
+      transition: color 0.3s;
+    }
+    nav .menu a:hover {
+      color: #f39c12;
+    }
+
+    /* Main Content */
+    main {
+      flex: 1;
+      margin-top: 100px; /* Offset for fixed navbar */
+      padding: 20px;
+    }
+    .card-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+    }
+    .card {
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+      text-align: center;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2);
+    }
+    .card h3 {
+      font-size: 1.5em;
+      margin-bottom: 10px;
+    }
+    .card p {
+      font-size: 1em;
+      color: #666;
+    }
+
+    /* Footer */
+    footer {
+      background: rgba(0, 0, 0, 0.8);
+      color: #fff;
+      text-align: center;
+      padding: 15px;
+      position: relative;
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <div class="logo">Softwany</div>
+    <div class="menu">  
+      <a href="index.html">Home</a>
+      <a href="about.html">About Us</a>
+      <a href="products.html">Products</a>
+      <a href="contact.html">Contact</a>
+    </div>
+  </nav>
+  <main>
+    <h1>About Us</h1>
+    <div class="card-container"> 
+      <!-- Mission Card -->
+      <div class="card">
+        <h3>Our Mission</h3>
+        <p>To simplify complexities, foster innovation, and create meaningful digital experiences that help businesses thrive.</p>
+      </div>
+      <!-- What We Do Card --->
+      <div class="card">
+        <h3>What We Do</h3>
+        <p>We deliver custom software development, cloud computing solutions, AI and machine learning, and enterprise tools tailored to your needs.</p>
+      </div>
+      <!-- Why Choose Us Card -->
+      <div class="card">
+        <h3>Why Choose Us?</h3>
+        <p>Our expert team, customer-first approach, commitment to quality, and innovative mindset make us the perfect technology partner.</p>
+      </div>
+      <!-- Vision Card -->
+      <div class="card">
+        <h3>Our Vision</h3>
+        <p>We envision a world where technology empowers every business to reach its full potential, creating a sustainable digital ecosystem.</p>
+      </div>
+    </div>
+  </main>
+  <footer>
+    &copy; 2025 Softwany. All rights reserved.
+  </footer>
+</body>
+</html>
+ 

@@ -1,0 +1,118 @@
+<!DOCTYPE html>   
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Products</title>
+  <style>
+    body, html {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+    }
+    -*
+    body {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      background: linear-gradient(135deg, #ffecd2, #fcb69f);
+      color: #333;
+    }
+    nav {
+      background: rgba(0, 0, 0, 0.8);
+      padding: 15px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: #fff;
+      position: fixed;
+      width: 100%;
+      z-index: 10;
+    }
+    nav .logo {   
+      font-size: 1.5em;
+      font-weight: bold;
+    }
+    nav .menu a {
+      color: #fff;
+      text-decoration: none;
+      margin: 0 10px;
+      font-size: 1em;
+      transition: color 0.3s;
+    }
+    nav .menu a:hover {
+      color: #f39c12;
+    }
+    main {
+      margin-top: 100px;
+      padding: 20px;
+    }
+    .products-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+    }
+    .product-card {
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      text-align: center;
+      padding: 15px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    .product-card img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 10px;
+    }
+    .product-card h3 {
+      margin: 10px 0;
+    }  
+    .product-card p {
+      margin: 5px 0 10px;
+      color: #666;
+    }
+    footer {
+      background: rgba(0, 0, 0, 0.8);
+      color: #fff;
+      text-align: center;
+      padding: 20px;
+    }
+  </style>
+</head>    
+<body>       
+  <nav>                                       
+    <div class="logo">My Website</div>
+    <div class="menu">
+      <a href="index.html">Home</a>
+      <a href="about.html">About Us</a>
+      <a href="products.html">Products</a>
+      <a href="contact.html">Contact</a>
+    </div>
+  </nav>
+  <main>
+    <h1>Our Products</h1>
+    <div class="products-grid">
+      <div class="product-card">
+        <img src="C:\Users\asus\Downloads\view-3d-computer-device-with-peripheral-devices.jpg" alt="Product 1">   
+        <h3>Product 1</h3>
+        <p>$19.99</p>
+      </div>
+      <div class="product-card">
+        <img src="C:\Users\asus\Downloads\3d-render-orange-box-with-software-white-background.jpg" alt="Product 2">
+        <h3>Product 2</h3>
+        <p>$29.99</p>
+      </div>
+      <div class="product-card">
+        <img src="C:\Users\asus\Downloads\global-business-internet-network-connection-iot-internet-things-business-intelligence-concept-busines-global-network-futuristic-technology-background-ai-generative.jpg" alt="Product 3">
+        <h3>Product 3</h3>
+        <p>$39.99</p>
+      </div>
+    </div>
+  </main>
+  <footer>
+    &copy; 2025 My Website. All rights reserved.  
+  </footer>
+</body>
+</html>
