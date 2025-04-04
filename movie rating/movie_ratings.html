@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Movie Listing & Rating</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      .star:hover ~ .star,
+      .star:hover,
+      .star.selected {
+        color: #ffd700; /* Golden color for the stars */
+      }
+ 
+      .movie-description {
+        visibility: hidden;
+        opacity: 0;
+        position: absolute;
+        top: 2rem;
+        left: 2rem;
+        background-color: rgba(0, 0, 0, 0.7);
+        color: #fff;
+        padding: 10px;
+        border-radius: 5px;
+        transition: visibility 0s, opacity 0.3s ease-in-out;
+      }
+ 
+      .movie-container:hover .movie-description {
+        visibility: visible;
+        opacity: 1;
+      }
+
+      /* Style for the custom context menu */
+      #context-menu {
+        display: none;
+        position: absolute;
+        background-color: #1c1c1c;
+        padding: 8px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+      }
+
+      #context-menu a {
+        color: #fff;
+        text-decoration: none;
+        padding: 8px 12px;
+        display: block;
+      }
+
+      #context-menu a:hover {
+        background-color: #444;
+      }
+    </style>
+  </head>
+  <body class="bg-blue-900 text-gray-100">
+    <header class="bg-blue-800 py-4 shadow-md">
+      <div class="container mx-auto px-4 flex justify-between items-center">
+        <h1 class="text-3xl font-bold text-yellow-400">Movie Listing & Rating</h1>
+        <nav>
+          <ul class="flex space-x-4">
+            <li><a href="#" class="text-gray-200 hover:text-yellow-300">Home</a></li>
+            <li><a href="#" class="text-gray-200 hover:text-yellow-300" onclick="displayTopRated()">Top Rated</a></li>
+            <li>
+              <select id="genre-filter" class="text-gray-200 bg-blue-700 border border-blue-600 p-2 rounded focus:outline-none" onchange="filterMovies()">
+                <option value="all">All Genres</option>
+                <option value="Sci-Fi">Sci-Fi</option>
+                <option value="Action">Action</option>
+                <option value="Comedy">Comedy</option>
+                <option value="Romance">Romance</option>
+                <option value="Superhero">Superhero</option>
+                <option value="Drama">Drama</option>
+                <option value="Crime">Crime</option>
+                <option value="Musical">Musical</option>
+              </select>
+            </li>
+            <li><a href="#" class="text-gray-200 hover:text-yellow-300">Contact</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+
+    <!-- Custom Context Menu -->
+    <div id="context-menu">
+      <a href="#" id="view-details">View Details</a>
+      <a href="#" id="add-to-favorites">Add to Favorites</a>
+    </div>
+
+    <div class="container mx-auto px-4 py-8">
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6" id="movie-list"></div>
+    </div>
+
+    <script>
+      const movies = [
+        {title: "Inception", genre: "Sci-Fi", year: 2010, image: "https://m.media-amazon.com/images/I/71thFiIUSpL._AC_UF894,1000_QL80_.jpg", rating: 4.5, votes: 1, description: "A thief enters dreams to steal secrets."},
+        {title: "Sholay", genre: "Action", year: 1975, image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQnpGSJsLAVPDjuDjsZ52tk7VGWhj1eeVp8vA&s", rating: 4.9, votes: 1, description: "Classic Indian action film."},
+        {title: "The Godfather", genre: "Crime", year: 1972, image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRhrLnQk54q2G0AG3-jzTALVBvcu1FDrmSudw&s", rating: 4.9, votes: 1, description: "A mafia boss passes on his legacy to his son."},
+        {title: "Interstellar", genre: "Sci-Fi", year: 2014, image: "https://saichintala.com/wp-content/uploads/2014/11/interstellar-3.jpg", rating: 4.8, votes: 1, description: "A journey beyond the stars."},
+        {title: "Titanic", genre: "Romance", year: 1997, image: "https://platform.vox.com/wp-content/uploads/sites/2/chorus/uploads/chorus_asset/file/9874701/titaniccover.jpg", rating: 4.6, votes: 1, description: "A tragic love story on a doomed ship."},
+        {title: "Avengers: Endgame", genre: "Superhero", year: 2019, image: "https://prod-ripcut-delivery.disney-plus.net/v1/variant/disney/DB176BD1488D7E4822256EF1778C124FC17388FC1E7F0F6D89B38AFF5FB001F6/scale?width=1200&aspectRatio=1.78&format=webp", rating: 4.7, votes: 1, description: "The ultimate superhero showdown."},
+        {title: "Dangal", genre: "Drama", year: 2016, image: "https://images.indianexpress.com/2017/06/dangal-7591.jpg?w=389", rating: 4.6, votes: 1, description: "A father trains his daughters for wrestling glory."},
+        {title: "Forrest Gump", genre: "Drama", year: 1994, image: "https://m.media-amazon.com/images/M/MV5BNDYwNzVjMTItZmU5YS00YjQ5LTljYjgtMjY2NDVmYWMyNWFmXkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg", rating: 4.8, votes: 1, description: "The extraordinary life of a man with a simple heart."},
+        {title: "The Matrix", genre: "Sci-Fi", year: 1999, image: "https://www.rogerebert.com/wp-content/uploads/2024/03/The-Matrix.jpg", rating: 4.8, votes: 1, description: "A hacker learns that reality is an illusion."},
+        {title: "Gladiator", genre: "Action", year: 2000, image: "https://cdn.theasc.com/_1200x630_crop_center-center_82_none/Gladiator-Featured-crop.jpg?mtime=1683006286", rating: 4.7, votes: 1, description: "A betrayed Roman general seeks revenge."},
+        {title: "Fight Club", genre: "Drama", year: 1999, image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQE5rkKTG2JFWq_FiFZnIkDhQ_ZPqYAPHYqAw&s", rating: 4.7, votes: 1, description: "A man forms an underground fight club."},
+        {title: "La La Land", genre: "Musical", year: 2016, image: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEioLu3Eo-ylOCMwiGYEtgtH2b21PSRPDdjkpeyMxxay0ElbwaemNGE7eXdHSYoxvm92F2ZdB3RjhDv5z_W4Gor8dwgmc_qRIGR6n_7neKYaYbKsW40szTnSVe2gKzwCcVZLQMAxjNB7ZSv-b7dbMr0f-nxQSRmTAryYYvwni9rogOjae74/w1200-h630-p-k-no-nu/0.jpg", rating: 4.6, votes: 1, description: "A jazz musician and an aspiring actress fall in love."},
+        {title: "Pulp Fiction", genre: "Crime", year: 1994, image: "https://static1.cbrimages.com/wordpress/wp-content/uploads/2024/08/vincent-mia-and-jules-in-pulp-fiction.jpg", rating: 4.8, votes: 1, description: "The lives of several characters intertwine in a non-linear narrative."},
+        {title: "The Dark Knight", genre: "Action", year: 2008, image: "https://m.media-amazon.com/images/M/MV5BMjA5ODU3NTI0Ml5BMl5BanBnXkFtZTcwODczMTk2Mw@@._V1_QL75_UX513_.jpg", rating: 4.9, votes: 1, description: "Batman faces Joker in Gotham."},
+        {title: "Joker", genre: "Drama", year: 2019, image: "https://sm.ign.com/t/ign_nordic/review/j/joker-revi/joker-review_zf38.1024.jpg", rating: 4.7, votes: 1, description: "A mentally troubled comedian's descent into madness."},
+        {title: "Parasite", genre: "Thriller", year: 2019, image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTOH3R0DeO5OFi95Q1SbpbOTB4oBZQ6zuyymQ&s", rating: 4.8, votes: 1, description: "A poor family infiltrates a wealthy household."},
+        {title: "The Shawshank Redemption", genre: "Drama", year: 1994, image: "https://m.media-amazon.com/images/I/51NiGlapXlL.jpg", rating: 5.0, votes: 1, description: "A man wrongly imprisoned forms an unlikely friendship."},
+        {title: "Casablanca", genre: "Romance", year: 1942, image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQwqG0nWaNLQbUKHUHl-75DuA0tNJbSr-U8-w&s", rating: 4.9, votes: 1, description: "A love story set during World War II."},
+        {title: "Goodfellas", genre: "Crime", year: 1990, image: "https://resizing.flixster.com/BzcbIq6ZM1zV2_5QaRCq0fpCDTY=/fit-in/705x460/v2/https://resizing.flixster.com/-XZAfHZM39UwaGJIFWKAE8fS0ak=/v3/t/assets/p12720_v_h9_af.jpg", rating: 4.8, votes: 1, description: "The rise and fall of a mob associate."},
+        {title: "The Lion King", genre: "Animation", year: 1994, image: "https://upload.wikimedia.org/wikipedia/en/6/67/The_Lion_King_1994.jpg", rating: 4.9, votes: 1, description: "A young lion prince flees his kingdom only to learn the true meaning of responsibility."},
+        {title: "Star Wars: A New Hope", genre: "Sci-Fi", year: 1977, image: "https://upload.wikimedia.org/wikipedia/commons/d/d2/Star_Wars_A_New_Hope.jpg", rating: 4.7, votes: 1, description: "A young farmer joins a rebel alliance to defeat an evil empire."},
+        {title: "The Dark Knight Rises", genre: "Action", year: 2012, image: "https://upload.wikimedia.org/wikipedia/en/8/83/The_Dark_Knight_Rises.jpg", rating: 4.7, votes: 1, description: "Batman comes out of retirement to stop a terrorist from destroying Gotham City."},
+        {title: "Spider-Man: No Way Home", genre: "Superhero", year: 2021, image: "https://upload.wikimedia.org/wikipedia/en/a/a7/Spider-Man_No_Way_Home_poster.jpg", rating: 4.7, votes: 1, description: "Spider-Man faces his biggest challenge yet when villains from other universes invade."},
+        {title: "The Avengers", genre: "Superhero", year: 2012, image: "https://upload.wikimedia.org/wikipedia/en/f/f9/TheAvengers2012Poster.jpg", rating: 4.6, votes: 1, description: "The Earth’s mightiest heroes unite to stop an alien invasion."},
+        {title: "Avatar", genre: "Sci-Fi", year: 2009, image: "https://upload.wikimedia.org/wikipedia/en/b/b0/Avatar-Teaser-Poster.jpg", rating: 4.5, votes: 1, description: "A paraplegic Marine dispatched to the moon Pandora on a unique mission becomes torn between following his orders and protecting the world he feels is his home."},
+        {title: "The Godfather: Part II", genre: "Crime", year: 1974, image: "https://upload.wikimedia.org/wikipedia/en/1/1f/The_Godfather_Part_II.jpg", rating: 4.8, votes: 1, description: "The early life and career of Vito Corleone are depicted, alongside the rise"},
+        {title: "Kabhi Khushi Kabhie Gham", genre: "Drama", year: 2001, image: "https://upload.wikimedia.org/wikipedia/en/4/4e/K3G_Poster.jpg", rating: 4.8, votes: 5, description: "A family drama about love, relationships, and conflicts."},
+        {title: "Lagaan", genre: "Drama", year: 2001, image: "https://upload.wikimedia.org/wikipedia/en/3/3b/Lagaan.jpg", rating: 4.7, votes: 6, description: "A cricket team of Indian villagers challenges British colonialists."},
+        {title: "3 Idiots", genre: "Comedy", year: 2009, image: "https://upload.wikimedia.org/wikipedia/en/9/94/3_Idiots_Poster.jpg", rating: 4.9, votes: 12, description: "Three engineering students discover life, love, and friendship."},
+        {title: "Sholay", genre: "Action", year: 1975, image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQnpGSJsLAVPDjuDjsZ52tk7VGWhj1eeVp8vA&s", rating: 4.9, votes: 15, description: "A classic action film about two criminals hired to capture a ruthless bandit."},
+        {title: "Dilwale Dulhania Le Jayenge", genre: "Romance", year: 1995, image: "https://upload.wikimedia.org/wikipedia/en/0/06/Dilwale_Dulhania_Le_Jayenge.jpg", rating: 4.8, votes: 10, description: "A love story that transcends cultural boundaries."},
+        {title: "Dangal", genre: "Drama", year: 2016, image: "https://upload.wikimedia.org/wikipedia/en/2/26/Dangal_%28film%29_posters.jpg", rating: 4.8, votes: 20, description: "A father trains his daughters to become world-class wrestlers."},
+        {title: "Zindagi Na Milegi Dobara", genre: "Drama", year: 2011, image: "https://upload.wikimedia.org/wikipedia/en/a/a4/Zindagi_Na_Milegi_Dobara_poster.jpg", rating: 4.6, votes: 18, description: "A road trip of self-discovery and friendship."},
+        {title: "Queen", genre: "Comedy", year: 2013, image: "https://upload.wikimedia.org/wikipedia/en/d/d7/Queen_2013_film_poster.jpg", rating: 4.7, votes: 14, description: "A young woman embarks on a solo honeymoon trip to Europe."},
+        {title: "PK", genre: "Comedy", year: 2014, image: "https://upload.wikimedia.org/wikipedia/en/4/4d/P.K._Poster.jpg", rating: 4.7, votes: 22, description: "A story about an alien who questions religious beliefs and human values."},
+        {title: "Gully Boy", genre: "Drama", year: 2019, image: "https://upload.wikimedia.org/wikipedia/en/a/ab/Gully_Boy_Poster.jpg", rating: 4.6, votes: 16, description: "A young man from the slums of Mumbai dreams of becoming a rapper."},
+        {title: "Jab We Met", genre: "Romance", year: 2007, image: "https://upload.wikimedia.org/wikipedia/en/9/90/Jab_We_Met_poster.jpg", rating: 4.5, votes: 17, description: "A chance meeting between two strangers leads to a transformative journey."},
+        {title: "Bajrangi Bhaijaan", genre: "Drama", year: 2015, image: "https://upload.wikimedia.org/wikipedia/en/9/95/Bajrangi_Bhaijaan_poster.jpg", rating: 4.8, votes: 19, description: "A man embarks on a mission to reunite a mute girl with her family in Pakistan."},
+        {title: "Barfi!", genre: "Romance", year: 2012, image: "https://upload.wikimedia.org/wikipedia/en/9/98/Barfi_Poster.jpg", rating: 4.7, votes: 11, description: "A heartwarming story of a mute and deaf man and his relationships."},
+        {title: "Kahaani", genre: "Thriller", year: 2012, image: "https://upload.wikimedia.org/wikipedia/en/1/1f/Kahaani_2012_poster.jpg", rating: 4.7, votes: 13, description: "A pregnant woman searches for her missing husband in Kolkata."},
+        {title: "Chennai Express", genre: "Comedy", year: 2013, image: "https://upload.wikimedia.org/wikipedia/en/3/36/Chennai_Express_poster.jpg", rating: 4.4, votes: 14, description: "A romantic comedy that takes place during a train journey from Mumbai to Rameswaram."},
+        {title: "Rock On!!", genre: "Drama", year: 2008, image: "https://upload.wikimedia.org/wikipedia/en/2/2b/RockOn!!.jpg", rating: 4.6, votes: 10, description: "A group of friends reunites to relive their passion for music."},
+        {title: "Aamir", genre: "Thriller", year: 2008, image: "https://upload.wikimedia.org/wikipedia/en/6/68/Aamir_%28film%29.jpg", rating: 4.7, votes: 9, description: "A man is forced to comply with the demands of a mysterious caller."},
+        {title: "Mughal-e-Azam", genre: "Historical", year: 1960, image: "https://upload.wikimedia.org/wikipedia/en/d/d6/Mughal-e-Azam.jpg", rating: 4.9, votes: 25, description: "The epic love story of Prince Salim and Anarkali set in the Mughal empire."},
+        {title: "Kuch Kuch Hota Hai", genre: "Romance", year: 1998, image: "https://upload.wikimedia.org/wikipedia/en/a/a1/Kuch_Kuch_Hota_Hai.jpg", rating: 4.8, votes: 13, description: "A young girl deals with love, loss, and family."},
+        {title: "Taare Zameen Par", genre: "Drama", year: 2007, image: "https://upload.wikimedia.org/wikipedia/en/2/2b/Taare_Zameen_Par.jpg", rating: 4.8, votes: 10, description: "A teacher helps a dyslexic child overcome his struggles with learning."},
+        {title: "Sultan", genre: "Action", year: 2016, image: "https://upload.wikimedia.org/wikipedia/en/6/64/Sultan_poster.jpg", rating: 4.7, votes: 18, description: "A wrestler overcomes personal and professional challenges."}  
+    ];
+
+      // Display the movies along with their star ratings.
+      function displayMovies(filteredMovies = movies) {
+        const movieList = document.getElementById("movie-list");
+        movieList.innerHTML = "";
+        filteredMovies.forEach((movie, index) => {
+          movieList.innerHTML += `
+            <div class="movie-container bg-blue-800 p-4 rounded-lg text-center shadow-lg relative" oncontextmenu="showContextMenu(event, ${index})">
+              <img src="${movie.image}" alt="${movie.title}" class="w-full h-48 object-cover rounded-lg mb-2">
+              <h2 class="text-xl font-semibold">${movie.title}</h2>
+              <p class="text-gray-300">${movie.genre} | ${movie.year}</p>
+              <p class="text-sm text-gray-300 italic mt-1">
+                Avg Rating: ${movie.rating.toFixed(1)} (${movie.votes} vote${movie.votes > 1 ? 's' : ''})
+              </p>
+              <!-- Star Rating Display -->
+              <div class="star-rating mb-2">
+                ${generateStars(Math.round(movie.rating), index)}
+              </div>
+              <div class="movie-description">${movie.description}</div>
+            </div>
+          `;
+        });
+      }
+      
+      // Generates the star icons based on the movie's rating.
+      function generateStars(rating, index) {
+        let stars = "";
+        for (let i = 1; i <= 5; i++) {
+          stars += `<span class="text-2xl cursor-pointer star" data-index="${index}" data-rating="${i}" onclick="rateMovie(${index}, ${i})">${i <= rating ? "★" : "☆"}</span>`;
+        }
+        return stars;
+      }
+
+      // Updates the movie's rating based on the clicked star.
+      function rateMovie(index, rating) {
+        let movie = movies[index];
+        movie.rating = (movie.rating * movie.votes + rating) / (movie.votes + 1);
+        movie.votes++;
+        displayMovies();
+      }
+
+      // Filter movies based on selected genre.
+      function filterMovies() {
+        const genre = document.getElementById("genre-filter").value;
+        if (genre === "all") {
+          displayMovies(movies);
+        } else {
+          const filteredMovies = movies.filter(movie => movie.genre === genre);
+          displayMovies(filteredMovies);
+        }
+      }
+
+      function displayTopRated() {
+        const topRatedMovies = movies.filter(movie => movie.rating > 4.7);
+        displayMovies(topRatedMovies);
+      }
+
+      // Show custom context menu
+      function showContextMenu(event, movieIndex) {
+        event.preventDefault(); // Prevent the default context menu
+
+        const menu = document.getElementById("context-menu");
+        const menuItems = menu.getElementsByTagName("a");
+
+        // Adjust menu position
+        menu.style.top = `${event.pageY}px`;
+        menu.style.left = `${event.pageX}px`;
+        menu.style.display = "block";
+
+        // Attach functionality to context menu options
+        menuItems[0].onclick = () => {
+          alert(`View Details for ${movies[movieIndex].title}`);
+        };
+
+        menuItems[1].onclick = () => {
+          alert(`${movies[movieIndex].title} added to favorites.`);
+        };
+      }
+
+      // Hide context menu on clicking anywhere
+      window.addEventListener("click", () => {
+        document.getElementById("context-menu").style.display = "none";
+      });
+
+      // Initial call to display all movies.
+      displayMovies();
+    </script>
+  </body>
+</html>
+communication skill
+html tecnical aptitude test
+
+
