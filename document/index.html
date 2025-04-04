@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document Sharing Platform</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(120deg, #89f7fe, #66a6ff);
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+
+        .navbar {
+            background: linear-gradient(45deg, #6a11cb, #2575fc);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .navbar-brand {w      
+            font-size: 28px;
+            font-weight: 700;
+            color: #fff;
+            text-shadow: 1px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .navbar a {
+            color: #fff;
+            font-size: 16px;
+            text-decoration: none;
+            margin-left: 20px;
+            transition: color 0.3s;
+        }
+
+        .navbar a:hover {
+            color: #f1c40f;
+        }
+
+        .container {
+            margin: 50px auto;
+            width: 85%;
+            max-width: 1200px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            color: #fff;
+        }
+
+        .header h1 {
+            font-size: 52px;
+            margin: 0;
+            font-weight: bold;
+            text-shadow: 2px 4px 6px rgba(0, 0, 0, 0.2);
+        }
+
+        .header p {
+            font-size: 20px;
+            margin: 10px 0 0;
+        }
+
+        .card {
+            background: #fff;
+            border-radius: 15px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            margin-bottom: 30px;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #6a11cb, #2575fc);
+            border: none;
+            padding: 12px 25px;
+            color: #fff;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(45deg, #2575fc, #6a11cb);
+        }
+
+        .search-bar input {
+            width: 100%;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 25px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            font-size: 16px;
+        }
+
+        .file-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background: #f9f9f9;
+            border: 1px solid #e6e6e6;
+            border-radius: 15px;
+            margin-bottom: 15px;
+        }
+
+        .file-item i {
+            color: #2575fc;
+            margin-right: 10px;
+            font-size: 20px;
+        }
+
+        .file-item a {
+            background: #6fcf97;
+            border: none;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 15px;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+
+        .file-item a:hover {
+            background: #57b77b;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            background: linear-gradient(45deg, #6a11cb, #2575fc);
+            color: #fff;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            font-size: 14px;
+        }
+
+        footer p {
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <span class="navbar-brand">DocShare</span>
+            <a href="#uploadForm">Upload</a>
+            <a href="#browseFiles">Browse</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="header">
+            <h1>Welcome to DocShare</h1>
+            <p>Your go-to platform for sharing and managing documents.</p>
+        </div>
+        <div class="card" id="uploadForm">
+            <h2>Upload a Document</h2>
+            <form id="fileUploadForm" enctype="multipart/form-data">
+                <input type="file" id="fileUpload" name="file">
+                <button type="submit" class="btn-primary">Upload</button>
+            </form>
+        </div>
+        <div class="card" id="browseFiles">
+            <h2>Search Documents</h2>
+            <input type="text" id="searchInput" placeholder="Type to search...">
+        </div>
+        <div class="card">
+            <h2>Uploaded Files</h2>
+            <div id="fileList">
+                <p>No files uploaded yet.</p>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 DocShare. All rights reserved.</p>
+    </footer>
+
+    <script>
+        const uploadForm = document.getElementById('fileUploadForm');
+        const fileList = document.getElementById('fileList');
+        const searchInput = document.getElementById('searchInput');
+
+        const uploadedFiles = [];
+
+        uploadForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const fileInput = document.getElementById('fileUpload');
+            if (fileInput.files.length === 0) {
+                alert('Please select a file to upload.');
+                return;
+            }
+
+            const file = fileInput.files[0];
+            const fileUrl = URL.createObjectURL(file); // Create a temporary URL for the file
+            uploadedFiles.push({ name: file.name, url: fileUrl });
+            renderFileList();
+            fileInput.value = '';
+        });
+
+        function renderFileList(searchTerm = '') {
+            fileList.innerHTML = '';
+
+            const filteredFiles = uploadedFiles.filter(file =>
+                file.name.toLowerCase().includes(searchTerm.toLowerCase())
+            );
+
+            if (filteredFiles.length === 0) {
+                fileList.innerHTML = '<p>No files found.</p>';
+                return;
+            }
+
+            filteredFiles.forEach(file => {
+                const fileItem = document.createElement('div');
+                fileItem.className = 'file-item';
+                fileItem.innerHTML = `
+                    <span><i class="fas fa-file"></i>${file.name}</span>
+                    <a href="${file.url}" target="_blank" class="btn-primary">Open</a>
+                `;
+                fileList.appendChild(fileItem);
+            });
+        }
+
+        searchInput.addEventListener('input', (e) => {
+            renderFileList(e.target.value);
+        });
+    </script>
+</body>
+</html>

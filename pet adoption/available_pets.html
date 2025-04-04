@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Available Pets</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #fff7e6;
+            font-family: 'Arial', sans-serif;
+        }
+        .navbar {
+            background-color: #343a40;
+        }
+        .navbar-brand {
+            color: #ffc107;
+        }
+        .navbar-nav .nav-link {
+            color: #ffffff;
+        }
+        .page-header {
+            text-align: center;
+            padding: 2rem;
+            background-color: #ffc107;
+            color: #343a40;
+        }
+        .pet-grid {
+            padding: 2rem;
+        }
+        .card {
+            border: none;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .card img {
+            border-radius: 15px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">PetAdopt</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="available_pets.html">Available Pets</a></li>
+                    <li class="nav-item"><a class="nav-link" href="contact.html">Contact</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <header class="page-header">
+        <h1>Available Pets for Adoption</h1>
+        <p>Find your perfect companion below.</p>
+    </header>
+
+    <section class="pet-grid container">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="card">
+                    <img src="C:\Users\asus\Downloads\Siamese cat.webp" class="card-img-top" alt="Pet">
+                    <div class="card-body">
+                        <h5 class="card-title">Luna</h5>
+                        <p class="card-text">3-year-old Siamese cat. Quiet, loving, and perfect for cozy homes.</p>
+                        <a href="pet_profile.html" class="btn btn-primary">View Details</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <img src="C:\Users\asus\Downloads\Beagle.webp" class="card-img-top" alt="Pet">
+                    <div class="card-body">
+                        <h5 class="card-title">Max</h5>
+                        <p class="card-text">2-year-old Beagle. Energetic and loves the outdoors.</p>
+                        <a href="pet_profile.html" class="btn btn-primary">View Details</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <img src="C:\Users\asus\Downloads\bulldog.jpg" class="card-img-top" alt="Pet">
+                    <div class="card-body">
+                        <h5 class="card-title">Rocky</h5>
+                        <p class="card-text">4-year-old Bulldog. Loyal and gentle with kids.</p>
+                        <a href="pet_profile.html" class="btn btn-primary">View Details</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
